@@ -203,3 +203,49 @@ Ames_Data %>%
 
 Ames_Data %>% 
   arrange(Year_Built, Year_Remod_Add)
+
+Ames_Data %>% 
+  arrange(Year_Built, desc(Year_Remod_Add))
+
+mtcars %>%
+  group_by(cyl) %>% # Agrupa por cilindradas e organiza
+  arrange(desc(mpg)) %>% data.frame()
+
+## Operações nas Colunas
+
+Ames_Data[, -c(1:3)] |>
+  mutate(Price_by_Area = Sale_Price/Lot_Area,
+         .keep = "all") # used, unused, none
+
+Ames_Data[, -c(1:3)] |>
+  mutate(Sale_Price = Sale_Price/1000,
+         .keep = "unused") # used, unused, none
+
+Ames_Data[, -c(1:3)] |>
+  mutate(Garage_Cars = as_factor(Garage_Cars)) # as_factor(x)
+
+Ames_Data[, 2:3] |>
+  mutate(Mean_Year = mean(c(Year_Built, Year_Remod_Add))) # mean(x, y)
+
+Ames_Data[, -c(1:3)] |> 
+  mutate(Good_Garage = 
+           ifelse(Garage_Cars > 1, Garage_Cars, "No"), # ifelse(condition, a, b) 
+         .after = "Garage_Cars"
+         ) 
+       
+Ames_Data |>
+  mutate_all(tolower) # muta todas as colunas
+
+Ames_Data |>
+  mutate_if(is.numeric, scale)
+
+Ames_Data |>
+  mutate_at(c("Year_Built", "Year_Remod_Add"), scale)
+
+Ames_Data[, 1:3] %>%
+  mutate_at(vars(contains("Year")), ~(./10))
+
+Ames_Data[, 1:3] %>%
+  mutate_at(vars(contains("Year")), list(decades = ~./10)) # modifica e adiciona o nome
+
+Ames_Data %>% mutate_if(is.numeric, list(log = log10))
