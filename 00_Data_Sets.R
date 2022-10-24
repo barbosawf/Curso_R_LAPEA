@@ -1,3 +1,4 @@
+library(tidyverse)
 
 cols_Ames <- readRDS("selected_cols_Ames.rds")
 
@@ -5,6 +6,7 @@ cols_Ames <- readRDS("selected_cols_Ames.rds")
 AmesHousing::make_ames() |>
   select(Gr_Liv_Area, # Área da sala de estar
          Year_Built, # Ano de construção
+         Year_Remod_Add, # Ano de reforma
          Overall_Qual, # Qualidade do material geral e o acabamento da casa
          Foundation, # Tipo de fundação
          Total_Bsmt_SF, # Aárea total do porão

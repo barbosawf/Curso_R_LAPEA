@@ -90,44 +90,116 @@ msleep <- ggplot2::msleep
 ## Filtragem com operadores lógicos
 
 Ames_Data %>%
-  filter(Overall_Qual == "Good") # Qualidade do geral do imóvel boa
+  filter(Overall_Qual == "Good") # Qualidade geral do imóvel boa (x)
 
 Ames_Data %>%
-  filter(Gr_Liv_Area  > mean(Gr_Liv_Area , na.rm = TRUE)) # Maior que a média da variável
+  filter(Gr_Liv_Area  > mean(Gr_Liv_Area , na.rm = TRUE)) # Maior que a média da variável (x)
+
+Ames_Data %>%
+  filter(Overall_Qual == "Good" & # Qualidade geral do imóvel boa 
+           Total_Bsmt_SF > 2100)  # Área do porão maior que 2100 (x & y)
+
+Ames_Data %>%
+  filter(Overall_Qual == "Good" | # Qualidade geral do imóvel boa
+           !Total_Bsmt_SF > 2100) # Área do porão maior que 2100 (x | y)
 
 Ames_Data %>%
   filter(Overall_Qual == "Good" & # Qualidade do geral do imóvel boa
-           Total_Bsmt_SF > 2000) # Área do porão maior que 2000
+           !Total_Bsmt_SF > 2100) # Área do porão maior que 2100 (x & !y)
 
 Ames_Data %>%
-  filter(Overall_Qual == "Good" & # Qualidade do geral do imóvel boa
-           !Total_Bsmt_SF > 2000) # Área do porão maior que 2000
+  filter(Overall_Qual == "Good" |     # Qualidade geral do imóvel boa
+         Overall_Qual == "Very_Good") # Qualidade geral do imóvel muito boa (x | x)
 
 Ames_Data %>%
-  filter(Overall_Qual == "Good" & # Qualidade do geral do imóvel boa
-           !Total_Bsmt_SF > 2000) # Área do porão maior que 2000
+  filter(Overall_Qual == "Good" &       # Qualidade geral do imóvel boa
+           Overall_Qual == "Very_Good") # Qualidade geral do imóvel muito boa (x & x)
 
 Ames_Data %>%
-  filter(Overall_Qual == "Good" | # Qualidade do geral do imóvel boa
-         Overall_Qual == "Very_Good") # Qualidade do geral do imóvel muito boa
+  filter(xor(Total_Bsmt_SF < 500,                 # Área do porão < 500
+             Overall_Qual  == "Very_Good")) %>%   # Qualidade muito boa (xor(x, y))
+  arrange(Total_Bsmt_SF)
 
 Ames_Data %>%
-  filter(xor(Gr_Liv_Area  > 2000,  # Área da sala de estar
-             Lot_Area  > 10000)) # Área do lote
-
-Ames_Data %>%
-  filter(xor(Gr_Liv_Area  > 2000,  # Área da sala de estar
-             Lot_Area  > 10000)) |> # Área do lote
-  arrange (desc(Gr_Liv_Area)) 
+  filter(xor(Total_Bsmt_SF < 500,                 # Área do porão < 500
+             Overall_Qual  == "Very_Good")) %>%   # Qualidade muito boa (xor(x, y))
+  arrange(desc(Total_Bsmt_SF))
 
 Ames_Data |>
-  filter(between(Gr_Liv_Area, 2500, 3000))
+  filter(Year_Built %in% c(2000, 2001, 2003))  # Valores contidos em um vetor (x %in% vetor)
 
 Ames_Data |>
-  filter(Year_Built %in% c(2000, 2001, 2003))
+  filter(!Year_Built %in% c(2000, 2001, 2003)) # Valores NÃO contidos em um vetor (!x %in% vetor)
+  
+Ames_Data |>                                      
+  filter(between(Gr_Liv_Area, 2500, 3000))     # Entre (intervalo fechado)
+
+Ames_Data |>
+  filter(Gr_Liv_Area >= 2500 &
+         Gr_Liv_Area <= 3000)
+
+Ames_Data |>
+  filter(near(Gr_Liv_Area, 2750, tol = 250))     # próximo (intervalo aberto)
+
+Ames_Data |>
+  filter(near(Sale_Price,
+              mean(Sale_Price, na.rm = T), 
+              tol = sd(Sale_Price,  na.rm = T)/sqrt(length(Sale_Price)) 
+              )
+         ) # média mais ou menos erro padrão
+
+Ames_Data %>% 
+  filter(str_detect(Overall_Qual, pattern = "Good"))
+
+tolower("gOoD")
+
+Ames_Data %>% 
+  filter(str_detect(tolower(Overall_Qual), pattern = "good"))
+
+Ames_Data |>
+  filter(Overall_Qual == "Very_Good", 
+         (Foundation != "PConc" | Garage_Cars > 2)) # Multiplas condições
+
 
 msleep |> 
-  filter(is.na(conservation))
+  filter(is.na(conservation)) # filtrar linhas vazias
 
 msleep |> 
   filter(!is.na(conservation))
+
+### Filtragem por múltiplas colunas
+
+Ames_Data[, 1:3] %>% 
+  filter_all(any_vars(. > 2000)) # União
+
+Ames_Data[,1:3] %>% 
+  filter_all(all_vars(. > 2000)) # Interseção
+
+msleep %>% 
+  filter_if(is.character, any_vars(is.na(.)))
+
+msleep %>% 
+  filter_if(is.numeric, any_vars(is.na(.)))
+
+Ames_Data %>% 
+  filter_at(1:3, all_vars(.> 2000)) # União
+
+Ames_Data %>% 
+  filter_at(vars(Gr_Liv_Area, Year_Built, Year_Remod_Add), all_vars(.> 2000)) # União
+
+Ames_Data %>% 
+  filter_at(vars(contains("Year")), all_vars(.> 2000))
+
+### Ordenação
+
+Ames_Data %>% 
+  arrange(Gr_Liv_Area)
+
+Ames_Data %>% 
+  arrange(desc(Gr_Liv_Area))
+
+Ames_Data %>% 
+  arrange(Year_Built)
+
+Ames_Data %>% 
+  arrange(Year_Built, Year_Remod_Add)
