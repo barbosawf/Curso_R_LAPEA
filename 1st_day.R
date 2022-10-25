@@ -86,6 +86,8 @@ tibble(a = character(), b = integer()) # cria um tibble com zero
 
 Ames_Data <- readRDS("Ames_Data.rds") # Importando o banco de dados
 msleep <- ggplot2::msleep
+iris <- as_tibble(iris)
+mtcars <- as_tibble(mtcars)
 
 ## Filtragem com operadores lógicos
 
@@ -211,6 +213,32 @@ mtcars %>%
   group_by(cyl) %>% # Agrupa por cilindradas e organiza
   arrange(desc(mpg)) %>% data.frame()
 
+### Partição ou Amostragem
+
+mtcars %>% slice(1:5)
+
+mtcars %>% slice(-(1:20))
+
+mtcars %>% slice(20:n())
+
+mtcars %>% slice_head(n = 5)
+
+mtcars %>% slice_tail(n = 5)
+
+mtcars %>% slice_min(mpg, n = 5)
+
+mtcars %>% slice_max(mpg, n = 5)
+
+mtcars %>% slice_sample(n = 5)
+
+mtcars %>% slice_sample(n = 5, replace = TRUE)
+
+mtcars %>% sample_frac()
+
+mtcars %>% sample_frac(.2)
+
+iris %>% group_by(Species) %>% sample_frac(.1)
+
 ## Operações nas Colunas
 
 Ames_Data[, -c(1:3)] |>
@@ -234,18 +262,66 @@ Ames_Data[, -c(1:3)] |>
          ) 
        
 Ames_Data |>
-  mutate_all(tolower) # muta todas as colunas
+  mutate_all(tolower) # aplica uma função em todas as colunas
 
 Ames_Data |>
-  mutate_if(is.numeric, scale)
+  mutate_if(is.numeric, scale) # aplica uma função sob uma condição
 
 Ames_Data |>
-  mutate_at(c("Year_Built", "Year_Remod_Add"), scale)
+  mutate_at(c("Year_Built", "Year_Remod_Add"), 
+            scale) # aplica uma função nas variáveis especificadas
 
 Ames_Data[, 1:3] %>%
-  mutate_at(vars(contains("Year")), ~(./10))
+  mutate_at(
+    vars(contains("Year")), ~(./10)) # nas variáveis que contem um termo especificado
 
-Ames_Data[, 1:3] %>%
-  mutate_at(vars(contains("Year")), list(decades = ~./10)) # modifica e adiciona o nome
+Ames_Data %>% 
+  mutate_if(is.numeric, 
+            list(log = log10)) # adiciona o nome log nas novas variáveis
 
-Ames_Data %>% mutate_if(is.numeric, list(log = log10))
+### Seleção de variáveis
+Ames_Data %>% select(where(is.numeric)) # seleciona onde a condiçãos for satisfeita
+
+Ames_Data %>% select_if(is.numeric) # seleciona se condição for satisfeita
+
+Ames_Data %>% select(contains("Area")) # seleciona a variável que contém um determinado termo
+
+Ames_Data %>% select(Gr_Liv_Area:Year_Remod_Add) # seleciona um intervalo de variáveis
+
+Ames_Data %>% select(1:3) # seleciona um intervalo de variáveis
+
+Ames_Data %>% select(!(Gr_Liv_Area:Year_Remod_Add)) # seleciona variáveis fora do intervalo
+
+iris %>% select(!ends_with("Width")) # não seleciona variáveis com um dado termo no final
+
+iris %>% select(starts_with("Petal") & ends_with("Width")) # duas condições para selecionar
+
+### Renomear Variáveis
+
+iris %>% rename(sepal_length = Sepal.Length, sepal_width = 2)
+
+iris %>% rename_with(toupper)
+
+iris %>% rename_with(toupper, ends_with("Width"))
+
+mtcars %>% rename_at(vars(mpg:hp), toupper)
+
+Ames_Data %>% rename_if(is.integer, toupper)
+
+mtcars %>% rename_all(toupper)
+
+### Realocar Variáveis
+
+mtcars %>% relocate(gear, carb)
+
+mtcars %>% relocate(gear, carb, .after = hp)
+
+mtcars %>% relocate(gear, carb, .before = hp)
+
+mtcars %>% relocate(mpg, cyl, .after = last_col())
+
+Ames_Data %>% relocate(where(is.factor))
+
+Ames_Data %>% relocate(where(is.factor), .after = last_col())
+
+Ames_Data %>% relocate(where(is.factor), .after = where(is.double))
