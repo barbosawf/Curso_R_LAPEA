@@ -1,17 +1,19 @@
 # Instalação e Abertura de Pacotes
 
 ## Instalação do tidyverse
-install.packages("tidyverse") # se o pacote não estiver instalado
+# install.packages("tidyverse") # se o pacote não estiver instalado
 
-update.packages("tidyverse") # se o pacote não estiver instalado
+# update.packages("tidyverse") # se o pacote não estiver instalado
 
 ## Carregar o pacote tidyverse
 library("tidyverse")
 
 # Importação do banco de dados
 ## Utilizando o pacote readr
+### Dados separados por um determinado delimitador
 read_delim("Ames_Data_delim.txt", delim = "|") # separado por |
 
+### Dados separados por vírgula ou ponto e vírgula
 read_csv("Ames_Data.csv") # separado por vírgula
 
 read_csv("Data_Sets/Ames_Data.csv") # dentro de outra pasta na pasta do projeto
@@ -20,17 +22,19 @@ read_csv2("Ames_Data_semicolon.csv") # separado por ponto e vírgula (csv)
 
 read_csv2("Ames_Data_semicolon.txt") # separado por ponto e vírgula (txt)
 
+### Dados separados por tabulação
 read_tsv("mtcars.tsv") # separado por tabulação (tsv)
 
 read_tsv("mtcars_tsv.txt") # separado por tabulação (txt)
 
 ### Largura fixa de colunas
 locations <- fwf_empty("fwf-sample_2.txt",
-                       col_names = c("first", "last", "state", "ssn")) # adivinha a posição das colunas
+                       col_names = 
+                         c("first", "last", "state", "ssn")) # adivinha a posição das colunas
 read_fwf("fwf-sample_2.txt", locations)
 
 locations <- fwf_widths(c(22, 10, 12), # quantidade de espaços
-                        c("name", "state", "ssn")) # especifica a largura das colunas
+                        c("name", "state", "ssn")) # especifica as colunas
 read_fwf("fwf-sample_2.txt", locations)
 
 locations <-
@@ -43,34 +47,34 @@ library(readxl) # carregar o pacote
 
 read_xlsx("Ames_Data.xlsx") # ler o banco de dados
 
-readxl::read_xlsx("Ames_Data.xlsx") # ler o banco de dados sem carregar o pacote
+readxl::read_xlsx("Ames_Data.xlsx") # ler sem carregar o pacote
 
-read_xlsx("datasets.xlsx") # lê o banco de dados da primeira planilha
+read_xlsx("datasets.xlsx") # lê a primeira planilha
 
-read_excel("datasets.xlsx", 2) # lê o banco de dados da segunda planilha
+read_excel("datasets.xlsx", 2) # lê a planilha especificada pela ordem
 
-read_xlsx("datasets.xlsx", 4) # lê o banco de dados da quarta planilha
+read_xlsx("datasets.xlsx", 4) # lê a planilha especificada pela ordem
 
-read_excel("datasets.xlsx", "mtcars") # lê o banco de dados da planilha especificando o nome dela
+read_excel("datasets.xlsx", "mtcars") # lê a planilha especificando o nome dela
 
 "datasets.xlsx" |>
   excel_sheets() |>
   set_names() |>
-  map(read_excel, path = "datasets.xlsx") # uso
+  map(read_excel, path = "datasets.xlsx") # Todas as planilhas numa lista 
 
 excel_sheets("datasets.xlsx") |>
   set_names() |>
-  lapply(read_excel, path = "datasets.xlsx")
+  lapply(read_excel, path = "datasets.xlsx")  # Todas as planilhas numa lista
 
 "datasets.xlsx" |>
   excel_sheets() |>
   set_names() |>
-  map_dfr(read_excel, path = "datasets.xlsx") |> view() # junta por linha
+  map_dfr(read_excel, path = "datasets.xlsx") |> view() # Junta o banco de dados por linha
 
 "datasets_2.xlsx" |>
   excel_sheets() |>
   set_names() |>
-  map_dfc(read_excel, path = "datasets_2.xlsx") |> view() # junta por coluna
+  map_dfc(read_excel, path = "datasets_2.xlsx") |> view() # Junta o banco de dados por coluna
 
 
 # Banco de dados como tibble
@@ -82,11 +86,34 @@ tibble(a = 1, b = 1:3) # cria um tibble
 
 tibble(a = character(), b = integer()) # cria um tibble com zero
 
-# Operações nas linhas do banco de dados
+tribble(
+  ~colA, ~colB,
+  "a",   1,
+  "b",   2,
+  "c",   3
+)
 
-Ames_Data <- readRDS("Ames_Data.rds") # Importando o banco de dados
+df <- tribble(
+  ~x,  ~y,
+  "a", 1:3,
+  "b", 4:6
+) # Se o valor na célula não for escalar, cria-se uma lista
+
+df
+
+df[[1]] # acesso a primeira coluna
+
+df[[2]] # acesso a segunda coluna
+
+# Operações nas linhas do banco de dados
+## Importando o banco de dados
+
+Ames_Data <- readRDS("Ames_Data.rds")
+
 msleep <- ggplot2::msleep
+
 iris <- as_tibble(iris)
+
 mtcars <- as_tibble(mtcars)
 
 ## Filtragem com operadores lógicos
@@ -162,12 +189,12 @@ Ames_Data |>
   filter(Overall_Qual == "Very_Good", 
          (Foundation != "PConc" | Garage_Cars > 2)) # Multiplas condições
 
-
 msleep |> 
   filter(is.na(conservation)) # filtrar linhas vazias
 
 msleep |> 
-  filter(!is.na(conservation))
+  filter(!is.na(conservation)) # remove as observações com NA em uma coluna
+
 
 ### Filtragem por múltiplas colunas
 
@@ -178,10 +205,12 @@ Ames_Data[,1:3] %>%
   filter_all(all_vars(. > 2000)) # Interseção
 
 msleep %>% 
-  filter_if(is.character, any_vars(is.na(.)))
+  filter_if(is.character, any_vars(is.na(.))) # filtra por condição
 
 msleep %>% 
-  filter_if(is.numeric, any_vars(is.na(.)))
+  filter_if(is.numeric, any_vars(is.na(.))) # filtra por condição
+
+msleep %>% filter_all(all_vars(!is.na(.))) # filtra por condição
 
 Ames_Data %>% 
   filter_at(1:3, all_vars(.> 2000)) # União
@@ -192,22 +221,20 @@ Ames_Data %>%
 Ames_Data %>% 
   filter_at(vars(contains("Year")), all_vars(.> 2000))
 
+
 ### Ordenação
 
 Ames_Data %>% 
-  arrange(Gr_Liv_Area)
+  arrange(Gr_Liv_Area) # crescente
 
 Ames_Data %>% 
-  arrange(desc(Gr_Liv_Area))
+  arrange(desc(Gr_Liv_Area)) # decrescente
 
 Ames_Data %>% 
-  arrange(Year_Built)
+  arrange(Year_Built, Year_Remod_Add) # crescente com duas variáveis
 
 Ames_Data %>% 
-  arrange(Year_Built, Year_Remod_Add)
-
-Ames_Data %>% 
-  arrange(Year_Built, desc(Year_Remod_Add))
+  arrange(Year_Built, desc(Year_Remod_Add)) # crescente e decrescente
 
 mtcars %>%
   group_by(cyl) %>% # Agrupa por cilindradas e organiza
@@ -237,10 +264,16 @@ mtcars %>% sample_frac()
 
 mtcars %>% sample_frac(.2)
 
+mtcars %>% sample_n(10)
+
+mtcars %>% sample_n(50, replace = TRUE)
+
 iris %>% group_by(Species) %>% sample_frac(.1)
 
-## Operações nas Colunas
+iris %>% top_n(5, Sepal.Width)
 
+## Operações nas Colunas
+### Criar ou modificar variáveis
 Ames_Data[, -c(1:3)] |>
   mutate(Price_by_Area = Sale_Price/Lot_Area,
          .keep = "all") # used, unused, none
@@ -310,6 +343,7 @@ Ames_Data %>% rename_if(is.integer, toupper)
 
 mtcars %>% rename_all(toupper)
 
+
 ### Realocar Variáveis
 
 mtcars %>% relocate(gear, carb)
@@ -325,3 +359,58 @@ Ames_Data %>% relocate(where(is.factor))
 Ames_Data %>% relocate(where(is.factor), .after = last_col())
 
 Ames_Data %>% relocate(where(is.factor), .after = where(is.double))
+
+## Operações com agrupamentos
+
+mtcars |> 
+  group_by(cyl) -> mtcars_by_cyl
+
+mtcars_by_cyl |> tally() # conta as observações em cada grupo
+
+mtcars_by_cyl |> tally(sort = T) # conta as observações em cada grupo e ordena
+
+mtcars_by_cyl %>% group_keys() # mostra os grupos formados
+
+mtcars_by_cyl %>% group_indices() # mostra a que grupo cada observação pertence
+
+mtcars_by_cyl %>% group_rows() # mostra as observações em cada grupo
+
+mtcars_by_cyl %>% group_vars() # mostra as variáveis de agrupamento 
+
+### Sumarização
+
+mtcars_by_cyl %>%
+  summarise(
+    n = n(),
+    disp = mean(disp, na.rm = TRUE)
+  ) # conta e tira a média de uma variável específica
+
+mtcars_by_cyl %>%
+  select(1:5) %>%
+  summarise(mean_dist = mean(disp), mean_mpg = mean(mpg)) # mais de uma variável 
+
+mtcars_by_cyl %>%
+  select(1:5) %>%
+  summarise(mean_dist = mean(disp), sd_dist = sd(disp)) # reuso correto de variáveis
+
+mtcars_by_cyl %>%
+  select(1:5) %>%
+  summarise(disp = mean(disp), sd_dist = sd(disp)) # reuso incorreto de variáveis
+
+mtcars_by_cyl %>%
+  summarise_at(c("mpg", "disp"), mean, na.rm = TRUE) # média de variáveis espeficicadas
+
+mtcars_by_cyl %>% 
+summarise_at(vars(disp:qsec), mean, na.rm = TRUE) # média de variáveis espeficicadas numa faixa
+
+mtcars_by_cyl %>%
+  summarise_if(is.numeric, mean, na.rm = TRUE) # média de variáveis que atendem uma condição
+
+mtcars_by_cyl %>%
+  select(1:5) %>%
+  summarise_all(list(mean, sd)) # aplicação de mais de uma função em todas as variáveis
+
+mtcars_by_cyl %>%
+  select(1:5) %>%
+  summarise_all(list(mean = mean, sd = sd)) # aplicação de mais de uma função em todas as variáveis
+
