@@ -84,14 +84,14 @@ tibble(x = 5:10, y = 2 * (3 ^ x)) # cria um tibble
 
 tibble(a = 1, b = 1:3) # cria um tibble
 
-tibble(a = character(), b = integer()) # cria um tibble com zero
+tibble(a = character(), b = integer()) # cria um tibble sem linhas
 
 tribble(
   ~colA, ~colB,
   "a",   1,
   "b",   2,
   "c",   3
-)
+) # facilita a criação de um tibble através da visualização 
 
 df <- tribble(
   ~x,  ~y,
@@ -154,6 +154,7 @@ Ames_Data %>%
              Overall_Qual  == "Very_Good")) %>%   # Qualidade muito boa (xor(x, y))
   arrange(desc(Total_Bsmt_SF))
 
+{# Bonus
 Ames_Data |>
   filter(Year_Built %in% c(2000, 2001, 2003))  # Valores contidos em um vetor (x %in% vetor)
 
@@ -165,7 +166,7 @@ Ames_Data |>
 
 Ames_Data |>
   filter(Gr_Liv_Area >= 2500 &
-         Gr_Liv_Area <= 3000)
+         Gr_Liv_Area <= 3000)                   # Equivalência com o anterior
 
 Ames_Data |>
   filter(near(Gr_Liv_Area, 2750, tol = 250))     # próximo (intervalo aberto)
@@ -178,22 +179,22 @@ Ames_Data |>
          ) # média mais ou menos erro padrão
 
 Ames_Data %>% 
-  filter(str_detect(Overall_Qual, pattern = "Good"))
+  filter(str_detect(Overall_Qual, pattern = "Good")) # filtragem encontrando um padrão
 
 tolower("gOoD")
 
 Ames_Data %>% 
-  filter(str_detect(tolower(Overall_Qual), pattern = "good"))
+  filter(str_detect(tolower(Overall_Qual), pattern = "good")) # filtragem encontrando um padrão
 
 Ames_Data |>
   filter(Overall_Qual == "Very_Good", 
          (Foundation != "PConc" | Garage_Cars > 2)) # Multiplas condições
 
 msleep |> 
-  filter(is.na(conservation)) # filtrar linhas vazias
+  filter(is.na(conservation)) # filtrar linhas vazias por uma variável
 
 msleep |> 
-  filter(!is.na(conservation)) # remove as observações com NA em uma coluna
+  filter(!is.na(conservation)) # remove as observações com NA em uma variável
 
 
 ### Filtragem por múltiplas colunas
@@ -213,14 +214,15 @@ msleep %>%
 msleep %>% filter_all(all_vars(!is.na(.))) # filtra por condição
 
 Ames_Data %>% 
-  filter_at(1:3, all_vars(.> 2000)) # União
+  filter_at(1:3, all_vars(.> 2000)) # Interseção
 
 Ames_Data %>% 
-  filter_at(vars(Gr_Liv_Area, Year_Built, Year_Remod_Add), all_vars(.> 2000)) # União
+  filter_at(vars(Gr_Liv_Area, Year_Built, Year_Remod_Add), all_vars(.> 2000)) # Interseção
 
 Ames_Data %>% 
-  filter_at(vars(contains("Year")), all_vars(.> 2000))
+  filter_at(vars(contains("Year")), all_vars(.> 2000)) # Interseção
 
+  }
 
 ### Ordenação
 
@@ -242,35 +244,37 @@ mtcars %>%
 
 ### Partição ou Amostragem
 
-mtcars %>% slice(1:5)
+mtcars %>% slice(1:5) # retorna uma sequência de observações 
 
-mtcars %>% slice(-(1:20))
+mtcars %>% slice(-(1:20)) # retorna uma sequência de observações complementar
 
-mtcars %>% slice(20:n())
+mtcars %>% slice(20:n()) # retorna uma sequência de observações de x até o total
 
-mtcars %>% slice_head(n = 5)
+mtcars %>% slice_head(n = 5) # retorna as n primeiras observações
 
-mtcars %>% slice_tail(n = 5)
+mtcars %>% slice_tail(n = 5) # retorna as n últimas observações
 
-mtcars %>% slice_min(mpg, n = 5)
+mtcars %>% slice_min(mpg, n = 5) # retorna as n menores observações
 
-mtcars %>% slice_max(mpg, n = 5)
+mtcars %>% slice_max(mpg, n = 5) # retorna as n maiores observações
 
-mtcars %>% slice_sample(n = 5)
+mtcars %>% slice_sample(n = 5) # retorna uma amostra aleatória de tamanho n
 
-mtcars %>% slice_sample(n = 5, replace = TRUE)
+mtcars %>% 
+  slice_sample(n = 5, replace = TRUE) # retorna uma amostra aleatória de tamanho n com reposição
 
-mtcars %>% sample_frac()
+mtcars %>% sample_frac() # embaralha todo conjunto de dados
 
-mtcars %>% sample_frac(.2)
+mtcars %>% sample_frac(.2) # retorna uma fração de observações aleatórias
 
-mtcars %>% sample_n(10)
+mtcars %>% sample_n(10) # retorna uma amostra aleatória de tamanho n
 
-mtcars %>% sample_n(50, replace = TRUE)
+mtcars %>% 
+  sample_n(50, replace = T) # retorna uma amostra aleatória de tamanho n com reposição
 
-iris %>% group_by(Species) %>% sample_frac(.1)
+iris %>% group_by(Species) %>% 
+  sample_frac(.1) # retorna uma fração de observações aleatórias dentro de grupos 
 
-iris %>% top_n(5, Sepal.Width)
 
 ## Operações nas Colunas
 ### Criar ou modificar variáveis
@@ -298,7 +302,7 @@ Ames_Data |>
   mutate_all(tolower) # aplica uma função em todas as colunas
 
 Ames_Data |>
-  mutate_if(is.numeric, scale) # aplica uma função sob uma condição
+  mutate_if(is.numeric, scale) # aplica uma função nas variáveis que atendem uma condição
 
 Ames_Data |>
   mutate_at(c("Year_Built", "Year_Remod_Add"), 
@@ -331,34 +335,42 @@ iris %>% select(starts_with("Petal") & ends_with("Width")) # duas condições para
 
 ### Renomear Variáveis
 
-iris %>% rename(sepal_length = Sepal.Length, sepal_width = 2)
+iris %>% 
+  rename(sepal_length = Sepal.Length, sepal_width = 2) # renomeia variáveis espeficicadas
 
-iris %>% rename_with(toupper)
+iris %>% 
+  rename_with(toupper) # renomeia utilizando uma função
 
-iris %>% rename_with(toupper, ends_with("Width"))
+iris %>% 
+  rename_with(toupper, ends_with("Width")) # renomeia utilizando uma função e padrões
 
-mtcars %>% rename_at(vars(mpg:hp), toupper)
+mtcars %>% 
+  rename_at(vars(mpg:hp), toupper) # renomeia uma sequência de variáveis com uma função
 
-Ames_Data %>% rename_if(is.integer, toupper)
+Ames_Data %>% 
+  rename_if(is.integer, toupper) # renomeia variáveis que atendam a determinadas condições
 
-mtcars %>% rename_all(toupper)
+mtcars %>% 
+  rename_all(toupper) # renomeia todas as variáveis
 
 
 ### Realocar Variáveis
 
-mtcars %>% relocate(gear, carb)
+mtcars %>% relocate(gear, carb) # realoca as variáveis na frente das outras
 
-mtcars %>% relocate(gear, carb, .after = hp)
+mtcars %>% 
+  relocate(gear, carb, .after = hp) # realoca as variáveis após uma variável espeficicada
 
-mtcars %>% relocate(gear, carb, .before = hp)
+mtcars %>% 
+  relocate(gear, carb, .before = hp) # realoca as variáveis antes de uma variável espeficicada
 
-mtcars %>% relocate(mpg, cyl, .after = last_col())
+mtcars %>% relocate(mpg, cyl, .after = last_col()) # realoca por último
 
-Ames_Data %>% relocate(where(is.factor))
+Ames_Data %>% relocate(where(is.factor)) # realoca sob uma determinada condição
 
-Ames_Data %>% relocate(where(is.factor), .after = last_col())
+Ames_Data %>% relocate(where(is.factor), .after = last_col()) # realoca sob uma condição
 
-Ames_Data %>% relocate(where(is.factor), .after = where(is.double))
+Ames_Data %>% relocate(where(is.factor), .after = where(is.double)) # combina condições na realocação
 
 ## Operações com agrupamentos
 
@@ -413,4 +425,5 @@ mtcars_by_cyl %>%
 mtcars_by_cyl %>%
   select(1:5) %>%
   summarise_all(list(mean = mean, sd = sd)) # aplicação de mais de uma função em todas as variáveis
+
 
