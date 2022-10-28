@@ -427,3 +427,17 @@ mtcars_by_cyl %>%
   summarise_all(list(mean = mean, sd = sd)) # aplicação de mais de uma função em todas as variáveis
 
 
+# Salvamento de Banco de Dados
+## Utilizando função do pacote base do R
+saveRDS(Ames_Data, "Ames_Data.rds") # pacote base
+
+## Utilizando o pacote readr
+write_csv(Ames_Data, file = "Ames_Data.csv") # separa os valores por vírgula 
+
+write_csv2(Ames_Data, file = "Ames_Data2.txt") # separa os valores por ponto e vírgula
+
+write_delim(Ames_Data, 
+            file = "Ames_Data_delim.txt", 
+            delim = "|") # separa os valores por um delimitador especificado
+
+write_tsv(mtcars, "mtcars.tsv") # separa os valores por tabulação

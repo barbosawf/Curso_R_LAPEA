@@ -25,3 +25,23 @@ write_tsv(mtcars, "mtcars.tsv")
 
 read_delim("Ames_Data_delim.txt", delim = "|")
 
+
+(
+  rbcb::get_series(code = c(ipca = 433, selic = 4390)) %>%
+    reduce(left_join, by = "date") %>%
+    mutate(Data = date,
+           IPCA = ipca,
+           SELIC = selic, .keep = "none"
+           ) %>%
+    gather(Indicador, Valor, IPCA:SELIC) %>%
+    arrange(Data) -> ipca_selic
+) # ou usa 
+
+plyr::join_all(rbcb::get_series(code = c(ipca = 433, selic = 4390)))
+
+write_csv(ipca_selic, file = "ipca_selic.csv")
+
+
+
+#links
+#https://daranzolin.github.io/2016-12-10-join-list-dataframes/
