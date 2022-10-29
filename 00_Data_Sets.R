@@ -41,7 +41,11 @@ plyr::join_all(rbcb::get_series(code = c(ipca = 433, selic = 4390)))
 
 write_csv(ipca_selic, file = "ipca_selic.csv")
 
+txhousing %>% 
+  mutate(Data = as.Date(
+    ISOdate(year = year, month = month, day = 1))) -> tx_housing
 
+write_csv(tx_housing, file = "tx_housing.csv")
 
 #links
 #https://daranzolin.github.io/2016-12-10-join-list-dataframes/

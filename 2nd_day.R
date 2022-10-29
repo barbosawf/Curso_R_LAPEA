@@ -203,12 +203,12 @@ ToothGrowth |>
 ### Adição de jitters
 ggplot(mpg, aes(class, hwy)) +
   geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.2) # Ele adiciona uma pequena quantidade de variação aleatória à localização de cada ponto e é uma maneira útil de lidar com a sopreposição causada pela discrição em conjuntos de dados menores.
+  geom_jitter(width = 0.2) # Adiciona uma pequena quantidade de variação aleatória à localização de cada ponto e é uma maneira útil de lidar com a sopreposição causada pela discrição em conjuntos de dados menores.
 
 ToothGrowth |>
-ggplot( aes( x = dose, y = len, fill = dose)) +
-  geom_boxplot(outlier.shape=NA) +
-  geom_jitter(position=position_jitter(0.2))
+  ggplot(aes(x = dose, y = len, fill = dose)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(0.2))
 
 ### Reordenação
 mpg |>
@@ -222,21 +222,81 @@ mpg |>
   labs(x = "Class", y = "Highway Miles per Gallon", fill = "Class") 
 
 # Gráfico de linhas
-
+## Importação dos  bancos de dados
 ipca_selic <- read_csv("ipca_selic.csv")
+tx_housing <- read_csv("tx_housing.csv")
 
+## Gráfico Padrão
 ipca_selic |> 
   filter(Indicador == "IPCA") %>%
   ggplot(aes(x = Data, y = Valor)) +
   geom_line() +
   ylab("IPCA")
 
-
+## Alterações
+### Cor das linhas pelas categorias em uma outra variável
 ipca_selic |> 
   ggplot(aes(x = Data, y = Valor)) +
   geom_line(aes(color = Indicador), size = 1)  
 
+### Tracejado, cor e espessura das linhas pelas categorias em uma outra variável
+ipca_selic |> 
+  ggplot(aes(x = Data, y = Valor)) +
+  geom_line(aes(color = Indicador, linetype = Indicador), size = 1)
 
+### Mudanças nas escalas dos eixos x e y
+tx_housing |>
+  group_by(Data) %>%
+  summarise("Volume Médio" = mean(volume, na.rm = TRUE)) %>%
+  ggplot(aes(x = Data, y = `Volume Médio`)) +
+  geom_line() +
+  scale_x_date(date_breaks = "1 year",
+               date_labels = "%Y") +
+  
+  scale_y_continuous(labels = scales::number_format(big.mark = ".",
+                                                    decimal.mark = ",")) +
+  theme_light()
+
+# Gráfico de colunas ou barras
+## Gráfico padrão
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+## Alterações
+### Cor das barras por categorias da mesma variável
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+### Cor das barras por categorias de uma outra variável
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), 
+           position = "dodge") #
+
+### Mudança de orientação dos eixos
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut), 
+           show.legend = FALSE,
+           width = 1) -> p_bar
+
+p_bar + coord_flip()
+
+### Coordenadas polar
+p_bar + coord_polar()
+
+### Adição dos erros
+ToothGrowth %>%
+  group_by(supp, dose) %>%
+  summarise_if(is.numeric, list(Length = mean, sd = sd)) %>%
+  ggplot(aes(x = dose, y = Length, fill = supp)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_errorbar(aes(ymin = Length - sd, ymax = Length + sd),
+                width = .2,
+                position = position_dodge(.9)) +
+  scale_fill_brewer(palette = "Paired") + 
+  theme_minimal()
 
 ## Temas pré-definidos
 
@@ -271,9 +331,9 @@ p_hist + geom_vline(
 
 # Facetas
 
-p_hist +   facet_grid(sex ~ .)
+p_hist + facet_grid(sex ~ .)
 
-p_hist +   facet_grid(. ~ sex)
+p_hist + facet_grid(. ~ sex)
 
 
 # Fatiamento
@@ -311,4 +371,5 @@ df |>
   geom_label(aes(x = 45, y = -0.05, label="Female"), color="#404080") +
   theme_minimal() +
   labs(x = "Peso (Kg)", y = "Densidade")
+
 
