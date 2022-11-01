@@ -314,49 +314,70 @@ p_hist + theme_linedraw()
 
 p_hist + theme_minimal()
 
+p_hist + theme_gray()
 
-## Definindo themas
-p_hist + theme(legend.position = "top")
+p_hist + theme_dark()
 
-(df |>
-    group_by(sex) |>
-    summarise_if(is.numeric, list(mean = mean)) -> df_mean)
+p_hist + theme_void()
 
-p_hist + geom_vline(
-  data = df_mean,
-  aes(xintercept = mean),
-  linetype = "dashed",
-  size = 0.75
-)
 
-# Facetas
-
+# Fatiamento
+## Usando a função facet_grid
+### Fatiamento pelas categorias de uma variável
 p_hist + facet_grid(sex ~ .)
 
 p_hist + facet_grid(. ~ sex)
 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .) # fatiamento por linha
 
-# Fatiamento
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(rows = vars(drv)) # fatiamento por linha
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl) # fatiamento por coluna
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(cols = vars(cyl)) # fatiamento por coluna
+
+### Fatiamento pelas categorias de mais de uma variável
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl) # duas variáveis
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(fl + drv ~ cyl) # três variáveis
+
+
+## Usando a função facet_wrap
+### Fatiamento espeficicando o número de fatias em linhas
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_wrap(~ class, nrow = 2)
 
+### Fatiamento espeficicando o número de fatias em colunas
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
-  facet_grid(drv ~ cyl)
+  facet_wrap(~ class, ncol = 2)
 
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy)) +
-  facet_grid(drv ~ .)
+# Salvamento de gráficos
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point()
 
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy)) +
-  facet_grid(. ~ cyl)
+ggsave("mtcars.pdf") # PDF
+ggsave("mtcars.png") # PNG
+ggsave("mtcars.svg") # SVG
+ggsave("mtcars.jpg") #JPG
 
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy)) + 
-  facet_wrap(~ class, nrow = 2)
+ggsave("mtcars.pdf", width = 4, height = 4)
+ggsave("mtcars.pdf", width = 20, height = 20, units = "cm")
 
+# Exemplo Bonus
 df |>
   group_by(sex) |>
   mutate(obs = row_number()) |>
@@ -372,4 +393,18 @@ df |>
   theme_minimal() +
   labs(x = "Peso (Kg)", y = "Densidade")
 
+
+## Definindo themas
+p_hist + theme(legend.position = "top")
+
+(df |>
+    group_by(sex) |>
+    summarise_if(is.numeric, list(mean = mean)) -> df_mean)
+
+p_hist + geom_vline(
+  data = df_mean,
+  aes(xintercept = mean),
+  linetype = "dashed",
+  size = 0.75
+)
 
