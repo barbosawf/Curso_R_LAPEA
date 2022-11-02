@@ -2,8 +2,8 @@
 library("tidyverse")
 
 # Gráficos no Pacote ggplot2
-#ggplot(data = <DATA>) + 
-#  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+# ggplot(data = <DATA>) + 
+#   <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 
 # Gráfico de Dispersão
 
