@@ -118,99 +118,119 @@ qqline(residuals(ms))
 
 par(mfrow = c(1, 2)) #rodar os plots acima
 hist(residuals(ms))
-boxplot(residuals(ms))
 boxplot(residuals(ms), horizontal = T)
 par(mfrow = c(1, 1))
 
 
-Vejamos alguns gr√°ficos ilustrativos que ajudam a ganhar experi√™ncias na avalia√ß√£o da normalidade ou afastamento dela. Para tal, foram utilizados dados gerados de 4 distribui√ß√µes:
-  
-  - caso 1: normal
-- caso 2: lognormal
-- caso 3: Cauchy
-- caso 4: Uniforme
+### Gr·ficos ilustrativos para diagnosticar a homogeneidade de vari‚ncias
 
-Inicialmente devemos plotar cada uma dads distribui√ß√µes acima para vermos sua forma original.
-```{r}
-curve(dnorm(x),-5,5,ylim=c(0,1), main = "caso 1")
-curve(dlnorm(x),-5,5,add=T,col="red",main = "caso 2")
-curve(dcauchy(x),-5,5,add=T,col="blue", main = "caso 3")
-curve(dunif(x),-5,5,add=T,col="green", main="caso 4")
-#separadamente
-par(mfrow=c(2,2))
-curve(dnorm(x),-5,5)
-curve(dlnorm(x),-5,5,col="red")
-curve(dcauchy(x),-5,5,col="blue")
-curve(dunif(x),-5,5,col="green")
-```
 
-Vamos rodar 4 exemplos (realiza√ß√µes) de cada caso. Assim poderemos ver suas nuances.
+## Forma original das distribuÁıes
+dev.off()
+par(mfrow = c(2, 2))
 
-```{r}
-graficos<-4
-par(mfrow=c(2,2))
-for (i in 1:graficos) {x<-rnorm(50);qqnorm(x, main = "caso 1");qqline(x)}
-for (i in 1:graficos) {x<-exp(rnorm(50));qqnorm(x,main = "caso 2");qqline(x)}
-for (i in 1:graficos) {x<-rcauchy(50);qqnorm(x,main="caso 3");qqline(x)}
-for (i in 1:graficos) {x<-runif(50);qqnorm(x, main="caso 4");qqline(x)}
-```
-```{r}
-par(mfrow=c(1,1))
-```
+# - caso 1: Normal
+curve(dnorm(x), -5, 5, ylim = c(0, 1), main = "Normal") 
 
-Usando o teste de Shapiro-Wilks para realizar um teste formal
+# - caso 2: Lognormal
+curve(dlnorm(x), -5, 5, ylim = c(0,1), col = "red", main = "Lognormal")
 
-```{r}
+# - caso 3: Cauchy
+curve(dcauchy(x), -5, 5, ylim = c(0,1), col = "blue", main = "Cauchy")
+
+# - caso 4: Uniforme
+curve(dunif(x), -5, 5, ylim = c(0,1), col = "green", main = "Uniforme")
+
+
+## Residuos de cada distribuiÁ„o
+graficos <- 4
+par(mfrow = c(2, 2))
+
+# - caso 1: Normal
+for (i in 1:graficos) {
+  x <- rnorm(50)
+  qqnorm(x, main = "Normal")
+  qqline(x)
+}
+
+# - caso 2: Lognormal
+for (i in 1:graficos) {
+  x <- exp(rnorm(50))
+  qqnorm(x, main = "Lognormal")
+  qqline(x)
+}
+
+# - caso 3: Cauchy
+for (i in 1:graficos) {
+  x <- rcauchy(50)
+  qqnorm(x, main = "Cauchy")
+  qqline(x)
+}
+
+# - caso 4: Uniforme
+for (i in 1:graficos) {
+  x <- runif(50)
+  qqnorm(x, main = "Uniforme")
+  qqline(x)
+}
+
+par(mfrow = c(1, 1))
+
+# Teste de shapiwo-wilkis para normalidade
+
 shapiro.test(rnorm(50))
 shapiro.test(rcauchy(50))
-curve(dnorm(x),-5,5)
-curve(dcauchy(x),-5,5,add=T,col="blue")
-```
+curve(dnorm(x), -5, 5)
+curve(dcauchy(x), -5, 5, add = T, col = "blue")
 
-Cuidado: e se n √© pequeno? Vejamos um exemplo
 
-```{r}
-shapiro.test(rnorm(5))
-shapiro.test(rcauchy(5))
-#repetir as duas linhas acima e discutir. Usar outros valores de n.
-```
+## Cuidado quando n for pequeno
+for (i in 1:10) {
+  print(shapiro.test(rcauchy(5))$p.value)
+}
 
-Usaremos, agora, um exemplo sobre erros correlacionados (p.61 Faraway)
-```{r}
+for (i in 1:10) {
+  print(shapiro.test(rcauchy(5))$p.value)
+} 
+
+# Dados correlacionados
+
 data(airquality)
 head(airquality)
-pairs(airquality,panel=panel.smooth)
-g<-lm(Ozone~Solar.R+Wind+Temp,airquality,na.action=na.exclude)
-plot(fitted(g),residuals(g),xlab="Fitted",ylab="Residuals")
-```
+pairs(airquality, panel = panel.smooth)
+ma <- lm(Ozone ~ . - Day, data = airquality, na.action = na.exclude)
+plot(fitted(ma), residuals(ma), xlab = "Fitted", ylab = "Residuals")
 
-Observamos que n√£o h√° const√¢ncia na vari√¢ncia, e tamb√©m h√° naolinearidade. Assim, optou-se por fazer transforma√ß√£o. No caso, utilizou-se a transforma√ß√£o logar√≠tmica de y.
-```{r}
-gl<-lm(log(Ozone)~Solar.R+Wind+Temp, airquality,na.action=na.exclude)
-plot(fitted(gl),residuals(gl),xlab="Fitted",ylab="Residuos")
-```
+"Observa-se que n„o h· const‚ncia na vari‚ncia e tambÈm n„o h· n„o linearidade.
+Assim, pode-se fazer uma transformaÁ„o que, neste caso, ser· logarÌtmica.
+"
 
-## Checando se erros s√£o correlacionados
-Agora, checando correla√ß√£o nos residuos
-```{r}
-plot(residuals(gl),ylab="Residuos")
-abline(h=0)
-lines(residuals(gl),ylab="Residuos")
-```
+mal <- lm(log(Ozone) ~ . - Day, data = airquality, na.action = na.exclude)
+plot(fitted(mal), residuals(mal), xlab = "Fitted", ylab = "Residuals")
 
-Observe que h√° missing values (valores perdidos) nos dados originais. Observe se h√° ocorr√™ncia de "runs" longos acima ou abaixo da linha zero. No exemplo acima aparentemente nada anormal.
+## Checando se os erros s„o correlacionados
 
-Plotando residuos sucessivos.
-```{r}
-plot(residuals(gl)[-153],residuals(gl)[-1],xlab=expression(hat(epsilon)[i]),ylab=expression(hat(epsilon)[i+1]))
-#teste simples (modelo sem intercepto pois res√≠duos tem m√©dia zero)
-summary(lm(residuals(gl)[-1]~-1+residuals(gl)[-153]))
-```
+plot(residuals(mal), ylab = "Residuos")
+abline(h = 0)
+lines(residuals(mal), ylab = "Residuos")
 
-Parece n√£o haver correla√ß√£o. Vejamos um teste formal: aplicando o DW
-```{r}
+
+## Plotando resÌduos sucessivos
+x11()
+plot(residuals(mal)[-153],
+     residuals(mal)[-1],
+     xlab = expression(hat(epsilon)[i]),
+     ylab = expression(hat(epsilon)[i + 1]))
+
+## teste simples (modelo sem intercepto pois resÌduos tem mÈdia zero)
+summary(lm(residuals(mal)[-1] ~ -1 + residuals(mal)[-153])) # 
+"Parece n„o haver correlaÁ„o"
+
+
+# Vejamos um teste formal: aplicando o DW
+
 library(lmtest)
-dwtest(Ozone~Solar.R+Wind+Temp,data=na.omit(airquality))
+dwtest(Ozone ~ . - Day, data = na.omit(airquality))
 
-```
-Observamos que n√£o h√° evid√™ncia de correla√ß√£o. Por√©m, cuidado, pois h√° missing values.
+"Observamos que n„o h· evidÍncia de correlaÁ„o, PorÈm, cuidado, pois h·
+valores faltantes."
