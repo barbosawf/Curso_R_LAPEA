@@ -1,8 +1,9 @@
+# Regressão Linear Múltipla (Análise de Resíduos)
+
 # Carregamento dos pacotes
 library(tidyverse)
 library(faraway) # Belsley, D., Kuh. E. and Welsch, R. (1980) "Regression Diagnostics" Wiley.
 
-# Regressão Linear Múltipla
 ## Dados (savings)
 data(savings) # Função data() importa o banco de dados savings do pacote faraway
 help(savings) # Mostra a descrição dos dados no help
@@ -234,3 +235,49 @@ dwtest(Ozone ~ . - Day, data = na.omit(airquality))
 
 "Observamos que não há evidência de correlação, Porém, cuidado, pois há
 valores faltantes."
+
+
+# Regressão Linear Múltipla (Multicolinearidade)
+## Carregamento do banco de dados
+
+data(seatpos)
+seatpos <- seatpos |> as_tibble()
+seatpos
+
+## Estudo da posição do assento do motorista em função de vários preditores
+help("seatpos")
+
+## Ajuste do modelo
+g <- lm(hipcenter ~ ., seatpos) # ou indica cada preditor de interesse
+summary(g)
+
+cat("Vemos, no quadro anterior, alguns sinais de multicolinearidade: \nnenhum preditor é significativo, mas R2 é relativamente alto.")
+
+##
+library(flextable)
+
+library(flextable)
+
+
+data("seatpos")
+
+tab_cor <- round(cor(seatpos), 3)
+
+tab_cor[upper.tri(tab_cor)] <- NA
+
+diag(tab_cor) <- NA
+
+tab_cor |>
+  as_tibble(rownames = NA) |>
+  rownames_to_column("Variável") |>
+  flextable() |>
+  bg(
+    j = 2:ncol(tab_cor),
+    bg = function(x) {
+      out <- rep("transparent", length(x))
+      out[x < -.9] <- "blue"
+      out[x > .9] <- "red"
+      out
+    }
+  )
+
