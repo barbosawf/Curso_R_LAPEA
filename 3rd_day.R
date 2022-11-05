@@ -117,7 +117,6 @@ plot(
 qqnorm(residuals(ms), ylab = "Residuals")
 qqline(residuals(ms))
 
-
 ### Histogramas e boxplot geralmente não são bons para checar normalidade. Veremos:
 
 par(mfrow = c(1, 2)) #rodar os plots acima
@@ -125,7 +124,7 @@ hist(residuals(ms))
 boxplot(residuals(ms), horizontal = T)
 par(mfrow = c(1, 1))
 
-
+dev.off()
 ### Gráficos ilustrativos para diagnosticar a homogeneidade de variâncias
 
 ## Forma original das distribuções
@@ -133,16 +132,16 @@ par(mfrow = c(1, 1))
 par(mfrow = c(2, 2))
 
 # - caso 1: Normal
-curve(dnorm(x), -5, 5, ylim = c(0, 1), main = "Normal") 
+curve(dnorm(x), -5, 5, ylim = c(0, 1), main = "Normal", lwd = 2) 
 
 # - caso 2: Lognormal
-curve(dlnorm(x), -5, 5, ylim = c(0,1), col = "red", main = "Lognormal")
+curve(dlnorm(x), -5, 5, ylim = c(0,1), col = "red", main = "Lognormal", lwd = 2)
 
 # - caso 3: Cauchy
-curve(dcauchy(x), -5, 5, ylim = c(0,1), col = "blue", main = "Cauchy")
+curve(dcauchy(x), -5, 5, ylim = c(0,1), col = "blue", main = "Cauchy", lwd = 2)
 
 # - caso 4: Uniforme
-curve(dunif(x), -5, 5, ylim = c(0,1), col = "green", main = "Uniforme")
+curve(dunif(x), -5, 5, ylim = c(0,1), col = "green", main = "Uniforme", lwd = 2)
 
 
 ## Residuos de cada distribuição
@@ -181,8 +180,9 @@ par(mfrow = c(1, 1))
 
 # Teste de shapiwo-wilkis para normalidade
 
-shapiro.test(rnorm(50))
-shapiro.test(rcauchy(50))
+shapiro.test(rnorm(50)) # 50 valores
+shapiro.test(rcauchy(50)) # 50 valores
+shapiro.test(rgamma(50, 8)) # 50 valores
 curve(dnorm(x), -5, 5)
 curve(dcauchy(x), -5, 5, add = T, col = "blue")
 
@@ -430,20 +430,15 @@ m1243 <- lm(y ~ x1 + x2 + x4 + x3, data = df_ms_2)
 m1432 <- lm(y ~ x1 + x4 + x3 + x2, data = df_ms_2)
 m4321 <- lm(y ~ x4 + x2 + x3 + x1, data = df_ms_2)
 
-### Problema: os testes F são sequenciais e não parciais
-anova(m1234)  # depende da ordem de entrada no modelo
-
-anova(m1243)
-
-anova(m1432)
+### Os testes F da função anova do pacote stats são sequenciais e não parciais
+#### Dependem da ordem de entrada no modelo
+anova(m1234)  
 
 anova(m4321)
 
-summary(m1234) # O teste t é parcial
-
-summary(m1243)
-
-summary(m1432)
+### Os testes t da função summary do pacote base não parciais
+#### Não dependem da ordem de entrada no modelo
+summary(m1234) 
 
 summary(m4321)
 
@@ -451,27 +446,27 @@ summary(m4321)
  variável que entrou no modelo.
  conclusão: melhor usar os testes t parciais"
 
-### vejamos o t tabelado a 5% com  8 g.l.
-qt(.975,8)
+anova(m1234) " <=> "; summary(m1234) "apenas para última variável"
 
-### vejamos o F tabelado a 5% com 1 e 8 g.l.
-qf(.95,1,8)
+### Os testes F da função Anova do pacote car são parciais
+#### Não dependem da ordem de entrada no modelo
 
-"Eliminamos a variável X3 pois possui o menor Fcalc, ou o menor tcalc, ou, alternativamente, o maior pvalor.
+car::Anova(m1234) 
 
-OBS.: Veja a função Anova() no pacote car que fornece SStipo II library(car) Anova(m1234,type="II") #observe que é equivalente a summary()
+car::Anova(m4321)
 
-Recalcular a nova equação de regressão sem a X3
+### Recalcular a nova equação de regressão sem a X3
 
-Realizando os F parciais"
+m124 <- lm(y ~ x1 + x2 + x4, data = df_ms_2)
+car::Anova(m124) 
 
-car::Anova(m1234, type = 2)  # depende da ordem de entrada no modelo
-
+### Recalcular a nova equação de regressão sem a X4
 car::Anova(m4321, type = 2)
 
-m124 <- lm(y ~ x1 + x2 + x4, data = dados)
-anova(m124)
+m12 <- lm(y ~ x1 + x2, data = df_ms_2)
+car::Anova(m12)
 
+summary(m12)
 
 ## FORWARD SELECTION
 ### Obter a variável com a maior correlação com Y.
@@ -504,6 +499,59 @@ anova(m134) # p valor > 0.05
 
 ### Modelo escolhido foi o m14
 coef(m14)
+
+## STEPWISE
+### Vamos usar alfa do F_in = 10% e alfa do F_out = 5%
+
+### Obter a variável com a maior correlação absoluta com Y.
+cor(df_ms_2)
+
+m4 <- lm(y ~ x4, data = df_ms_2)
+anova(m4) 
+summary(m4)
+
+### Acrescentar uma variável por vez e checar o p-valor a 10%
+m14 <- lm(y ~ x4 + x1, data = df_ms_2) # x1 acrescentada
+anova(m14)
+
+m24 <- lm(y ~ x4 + x2, data = df_ms_2)  # x2 acrescentada
+anova(m24)
+
+m34 <- lm(y ~ x4 + x3, data = df_ms_2) # x3 acrescentada
+anova(m34)
+
+### Avaliar por um test parcial (t ou F) se é necessário deletar a variável inserida
+summary(m14) 
+car::Anova(m14)
+
+### Acrescentar mais uma variável por vez no modelo com 2 variáveis e checar o p-valor a 10%
+m142 <- lm(y ~ x1 + x4 + x2, data = df_ms_2)
+anova(m142) # como a variável X2 tem o menor p_valor ela é acrescentada no modelo
+
+m143 <- lm(y ~ x1 + x4 + x3, data = df_ms_2)
+anova(m143)
+
+### Avaliar por um test parcial (t ou F) se é necessário deletar a variável inserida
+summary(m142) # x4 não significativa
+car::Anova(m142) # x4 não significativa
+
+### Deletar a variável que não foi significativa a 5% e ajustar o novo modelo.
+m12 <- lm(y ~ x1 + x2, data = df_ms_2)
+summary(m12)
+
+### Realizar o foward a partir do modelo ajustado considerando 10% de significância
+
+m123 <- lm(y ~ x1 + x2 + x3, data = df_ms_2)
+anova(m123)
+
+m124 <- lm(y ~ x1 + x2 + x4, data = df_ms_2)
+anova(m124)
+
+#### Nenhuma das variáveis (x3 e x4) foram significativas a 10%. 
+#### Assim, não as incluímos no modelo.
+#### O modelo final será
+
+coef(m12)
 
 ## Funções prontas
 library(MASS)
