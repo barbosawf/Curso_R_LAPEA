@@ -473,7 +473,6 @@ summary(m12)
 
 m4 <- lm(y ~ x4, data = df_ms_2)
 anova(m4) # Anova
-
 summary(m4) # Resumo
 
 ### Acrescentar uma variável por vez e verificar o p-valor
@@ -545,8 +544,7 @@ m124 <- lm(y ~ x1 + x2 + x4, data = df_ms_2)
 anova(m124)
 
 #### Nenhuma das variáveis (x3 e x4) foram significativas a 10%. 
-#### Assim, não as incluímos no modelo.
-#### O modelo final será
+#### Assim, não as incluímos no modelo. O modelo final será
 
 coef(m12)
 
