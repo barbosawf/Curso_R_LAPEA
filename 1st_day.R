@@ -8,13 +8,13 @@
 ## Carregar o pacote tidyverse
 library("tidyverse")
 
-# Importação do banco de dados
+# Importação do banco de dados (slide 11)
 ## Utilizando o pacote readr
 ### Dados separados por um determinado delimitador
 read_delim("Ames_Data_delim.txt", delim = "|") # separado por |
 
 ### Dados separados por vírgula ou ponto e vírgula
-read_csv("Ames_Data.csv") # separado por vírgula
+read_csv("Ames_Data.csv", show_col_types = FALSE) # separado por vírgula
 
 read_csv("Data_Sets/Ames_Data.csv") # dentro de outra pasta na pasta do projeto
 
@@ -42,7 +42,7 @@ locations <-
 read_fwf("fwf-sample_2.txt", locations)
 
 
-## Utilizando o pacote readxl
+## Utilizando o pacote readxl (slide 13)
 library(readxl) # carregar o pacote
 
 read_xlsx("Ames_Data.xlsx") # ler o banco de dados
@@ -57,6 +57,7 @@ read_xlsx("datasets.xlsx", 4) # lê a planilha especificada pela ordem
 
 read_excel("datasets.xlsx", "mtcars") # lê a planilha especificando o nome dela
 
+{ # Bonus
 "datasets.xlsx" |>
   excel_sheets() |>
   set_names() |>
@@ -65,6 +66,7 @@ read_excel("datasets.xlsx", "mtcars") # lê a planilha especificando o nome dela
 excel_sheets("datasets.xlsx") |>
   set_names() |>
   lapply(read_excel, path = "datasets.xlsx")  # Todas as planilhas numa lista
+
 
 "datasets.xlsx" |>
   excel_sheets() |>
@@ -75,9 +77,9 @@ excel_sheets("datasets.xlsx") |>
   excel_sheets() |>
   set_names() |>
   map_dfc(read_excel, path = "datasets_2.xlsx") |> view() # Junta o banco de dados por coluna
+} # Bonus
 
-
-# Banco de dados como tibble
+# Banco de dados como tibble (slide 17)
 iris |> as_tibble() # transforma em tibble
 
 tibble(x = 5:10, y = 2 * (3 ^ x)) # cria um tibble
@@ -105,8 +107,9 @@ df[[1]] # acesso a primeira coluna
 
 df[[2]] # acesso a segunda coluna
 
-# Operações nas linhas do banco de dados
-## Importando o banco de dados
+# Manipulação do banco de dados (dplyr) (slide 19)
+## Operações nas linhas do banco de dados (slide 21)
+### Importando o banco de dados
 
 Ames_Data <- readRDS("Ames_Data.rds")
 
@@ -116,7 +119,7 @@ iris <- as_tibble(iris)
 
 mtcars <- as_tibble(mtcars)
 
-## Filtragem com operadores lógicos
+### Filtragem com operadores lógicos
 
 Ames_Data %>%
   filter(Overall_Qual == "Good") # Qualidade geral do imóvel boa (x)
@@ -130,11 +133,11 @@ Ames_Data %>%
 
 Ames_Data %>%
   filter(Overall_Qual == "Good" | # Qualidade geral do imóvel boa
-           !Total_Bsmt_SF > 2100) # Área do porão maior que 2100 (x | y)
+           !Total_Bsmt_SF > 2100) # Área do porão não seja maior que 2100 (x | y)
 
 Ames_Data %>%
   filter(Overall_Qual == "Good" & # Qualidade do geral do imóvel boa
-           !Total_Bsmt_SF > 2100) # Área do porão maior que 2100 (x & !y)
+           !Total_Bsmt_SF > 2100) # Área do porão não seja maior que 2100 (x & !y)
 
 Ames_Data %>%
   filter(Overall_Qual == "Good" |     # Qualidade geral do imóvel boa
@@ -155,6 +158,7 @@ Ames_Data %>%
   arrange(desc(Total_Bsmt_SF))
 
 {# Bonus
+####  Outras Filtragens (Bônus)
 Ames_Data |>
   filter(Year_Built %in% c(2000, 2001, 2003))  # Valores contidos em um vetor (x %in% vetor)
 
@@ -197,7 +201,7 @@ msleep |>
   filter(!is.na(conservation)) # remove as observações com NA em uma variável
 
 
-### Filtragem por múltiplas colunas
+#### Filtragem por múltiplas colunas
 
 Ames_Data[, 1:3] %>% 
   filter_all(any_vars(. > 2000)) # União
@@ -222,27 +226,29 @@ Ames_Data %>%
 Ames_Data %>% 
   filter_at(vars(contains("Year")), all_vars(.> 2000)) # Interseção
 
-  }
+  } # Outras Filtragens (Bônus)
 
-### Ordenação
+#### Ordenação (slide 30)
 
-Ames_Data %>% 
-  arrange(Gr_Liv_Area) # crescente
+Ames_Data %>% arrange(Gr_Liv_Area) # crescente
 
-Ames_Data %>% 
-  arrange(desc(Gr_Liv_Area)) # decrescente
+Ames_Data %>% arrange(desc(Gr_Liv_Area)) # decrescente
 
-Ames_Data %>% 
-  arrange(Year_Built, Year_Remod_Add) # crescente com duas variáveis
+Ames_Data %>% arrange(Year_Built, Year_Remod_Add) # crescente com duas variáveis
 
-Ames_Data %>% 
-  arrange(Year_Built, desc(Year_Remod_Add)) # crescente e decrescente
+Ames_Data %>% arrange(Year_Built, desc(Year_Remod_Add)) # crescente e decrescente
 
 mtcars %>%
   group_by(cyl) %>% # Agrupa por cilindradas e organiza
   arrange(desc(mpg)) %>% data.frame()
 
-### Partição ou Amostragem
+arrange_all(mtcars, desc) # arranja todas as variáveis decrescentemente
+
+arrange_if(Ames_Data, is.factor) # arranja sob uma determinada condição
+
+arrange_at(mtcars, vars(gear, carb)) # ou arrange_at(mtcars, 11)
+
+#### Partição (slide 32)
 
 mtcars %>% slice(1:5) # retorna uma sequência de observações 
 
@@ -263,6 +269,7 @@ mtcars %>% slice_sample(n = 5) # retorna uma amostra aleatória de tamanho n
 mtcars %>% 
   slice_sample(n = 5, replace = TRUE) # retorna uma amostra aleatória de tamanho n com reposição
 
+#### Amostragem (slide 34)
 mtcars %>% sample_frac() # embaralha todo conjunto de dados
 
 mtcars %>% sample_frac(.2) # retorna uma fração de observações aleatórias
@@ -276,8 +283,8 @@ iris %>% group_by(Species) %>%
   sample_frac(.1) # retorna uma fração de observações aleatórias dentro de grupos 
 
 
-## Operações nas Colunas
-### Criar ou modificar variáveis
+### Operações nas Colunas (slide 36)
+#### Criar ou modificar variáveis
 Ames_Data[, -c(1:3)] |>
   mutate(Price_by_Area = Sale_Price/Lot_Area,
          .keep = "all") # used, unused, none
@@ -289,8 +296,6 @@ Ames_Data[, -c(1:3)] |>
 Ames_Data[, -c(1:3)] |>
   mutate(Garage_Cars = as_factor(Garage_Cars)) # as_factor(x)
 
-Ames_Data[, 2:3] |>
-  mutate(Mean_Year = mean(c(Year_Built, Year_Remod_Add))) # mean(x, y)
 
 Ames_Data[, -c(1:3)] |> 
   mutate(Good_Garage = 
@@ -305,7 +310,7 @@ Ames_Data |>
   mutate_if(is.numeric, scale) # aplica uma função nas variáveis que atendem uma condição
 
 Ames_Data |>
-  mutate_at(c("Year_Built", "Year_Remod_Add"), 
+  mutate_at(c("Year_Built", "Gr_Liv_Area"), 
             scale) # aplica uma função nas variáveis especificadas
 
 Ames_Data[, 1:3] %>%
@@ -316,7 +321,7 @@ Ames_Data %>%
   mutate_if(is.numeric, 
             list(log = log10)) # adiciona o nome log nas novas variáveis
 
-### Seleção de variáveis
+#### Seleção de variáveis (slide 39)
 Ames_Data %>% select(where(is.numeric)) # seleciona onde a condiçãos for satisfeita
 
 Ames_Data %>% select_if(is.numeric) # seleciona se condição for satisfeita
@@ -333,7 +338,7 @@ iris %>% select(!ends_with("Width")) # não seleciona variáveis com um dado termo
 
 iris %>% select(starts_with("Petal") & ends_with("Width")) # duas condições para selecionar
 
-### Renomear Variáveis
+#### Renomear Variáveis
 
 iris %>% 
   rename(sepal_length = Sepal.Length, sepal_width = 2) # renomeia variáveis espeficicadas
@@ -354,7 +359,7 @@ mtcars %>%
   rename_all(toupper) # renomeia todas as variáveis
 
 
-### Realocar Variáveis
+#### Realocar Variáveis (slide 43)
 
 mtcars %>% relocate(gear, carb) # realoca as variáveis na frente das outras
 
@@ -372,7 +377,7 @@ Ames_Data %>% relocate(where(is.factor), .after = last_col()) # realoca sob uma 
 
 Ames_Data %>% relocate(where(is.factor), .after = where(is.double)) # combina condições na realocação
 
-## Operações com agrupamentos
+### Operações com agrupamentos (slide 45)
 
 mtcars |> 
   group_by(cyl) -> mtcars_by_cyl
@@ -389,7 +394,7 @@ mtcars_by_cyl %>% group_rows() # mostra as observações em cada grupo
 
 mtcars_by_cyl %>% group_vars() # mostra as variáveis de agrupamento 
 
-### Sumarização
+#### Sumarização (slide 47)
 
 mtcars_by_cyl %>%
   summarise(
@@ -399,7 +404,7 @@ mtcars_by_cyl %>%
 
 mtcars_by_cyl %>%
   select(1:5) %>%
-  summarise(mean_dist = mean(disp), mean_mpg = mean(mpg)) # mais de uma variável 
+  summarise(mean_disp = mean(disp), mean_mpg = mean(mpg)) # mais de uma variável 
 
 mtcars_by_cyl %>%
   select(1:5) %>%
@@ -427,11 +432,11 @@ mtcars_by_cyl %>%
   summarise_all(list(mean = mean, sd = sd)) # aplicação de mais de uma função em todas as variáveis
 
 
-# Salvamento de Banco de Dados
-## Utilizando função do pacote base do R
-saveRDS(Ames_Data, "Ames_Data.rds") # pacote base
+## Salvamento de Banco de Dados ()
+### Utilizando função do pacote base do R
+write_rds(Ames_Data, "Ames_Data.rds") # 
 
-## Utilizando o pacote readr
+### Utilizando o pacote readr
 write_csv(Ames_Data, file = "Ames_Data.csv") # separa os valores por vírgula 
 
 write_csv2(Ames_Data, file = "Ames_Data2.txt") # separa os valores por ponto e vírgula
