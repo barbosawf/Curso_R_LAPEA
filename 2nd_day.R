@@ -1,11 +1,11 @@
 # Carregar o pacote tidyverse
 library("tidyverse")
 
-# Gráficos no Pacote ggplot2
+# Gráficos no Pacote ggplot2 (Slide 52)
 # ggplot(data = <DATA>) + 
 #   <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 
-# Gráfico de Dispersão
+# Gráfico de Dispersão (slide 58)
 
 ## Especificação do banco de dados e da estética nas funções
 ### Tudo dentro da função ggplot
@@ -78,7 +78,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, shape = drv))
 
 
-# Histograma
+# Histograma (slide 62)
 ## Criando um banco de dados
 set.seed(123) # semente aleatória
 
@@ -89,7 +89,7 @@ df <- tribble(
 ) |>
   unnest(-sex) |> mutate(across(sex, as_factor))
 
-df |> filter(sex == "M") -> df_M
+(df |> filter(sex == "M") -> df_M)
 
 str(df)
 
@@ -124,7 +124,7 @@ ggplot(df, aes(x = weight)) +
 
 ggplot(df, aes(x = weight, fill = sex)) +
   geom_histogram(color = "black") +
-  scale_fill_manual(values=c("#999999", "#56B4E9")) # preenchimento utilizando outras funções
+  scale_fill_manual(values = c("#999999", "#56B4E9")) # preenchimento utilizando outras funções
   
 
 ### Transparência das barras
@@ -138,7 +138,7 @@ ggplot(df, aes(x = weight)) +
                  color = "black" 
   )
 
-# Gráfico de densidade (Bonus)
+# Gráfico de densidade (Bônus) (Slide 67)
 { 
 ## Gráfico padrão
 ggplot(diamonds, aes(x = carat)) +
@@ -167,11 +167,11 @@ ggplot(df) +
 
 } # Bonus (Gráficos de densidade)
 
-# Boxplot
+# Boxplot (slide 70)
 ## Banco de dados
-ToothGrowth |>
+(ToothGrowth |>
   as_tibble() |>
-  mutate(dose = as_factor(dose)) -> ToothGrowth
+  mutate(dose = as_factor(dose)) -> ToothGrowth)
 
 ## Gráfico Padrão
 (ToothGrowth |>
@@ -200,17 +200,13 @@ ToothGrowth |>
   stat_boxplot(geom = 'errorbar') + 
   geom_boxplot()
 
-### Adição de jitters
-ggplot(mpg, aes(class, hwy)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.2) # Adiciona uma pequena quantidade de variação aleatória à localização de cada ponto e é uma maneira útil de lidar com a sopreposição causada pela discrição em conjuntos de dados menores.
 
-ToothGrowth |>
-  ggplot(aes(x = dose, y = len, fill = dose)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(position = position_jitter(0.2))
+### Reordenação (Slide 74)
+mpg |>
+  ggplot(aes(class, hwy, fill = class)) + 
+  geom_boxplot() +
+  labs(x = "Class", y = "Highway Miles per Gallon", fill = "Class")
 
-### Reordenação
 mpg |>
   ggplot(aes(reorder(class, hwy), hwy, fill = class)) + # uso da função reorder
   geom_boxplot() +
@@ -221,7 +217,7 @@ mpg |>
   geom_boxplot() +
   labs(x = "Class", y = "Highway Miles per Gallon", fill = "Class") 
 
-# Gráfico de linhas
+# Gráfico de linhas (slide 75)
 ## Importação dos  bancos de dados
 ipca_selic <- read_csv("ipca_selic.csv")
 tx_housing <- read_csv("tx_housing.csv")
@@ -254,10 +250,9 @@ tx_housing |>
                date_labels = "%Y") +
   
   scale_y_continuous(labels = scales::number_format(big.mark = ".",
-                                                    decimal.mark = ",")) +
-  theme_light()
+                                                    decimal.mark = ",")) 
 
-# Gráfico de colunas ou barras
+# Gráfico de colunas ou barras (slide 79)
 ## Gráfico padrão
 ggplot(data = diamonds) + 
   geom_bar(mapping = aes(x = cut))
@@ -276,10 +271,10 @@ ggplot(data = diamonds) +
            position = "dodge") #
 
 ### Mudança de orientação dos eixos
-ggplot(data = diamonds) + 
+(ggplot(data = diamonds) + 
   geom_bar(mapping = aes(x = cut, fill = cut), 
            show.legend = FALSE,
-           width = 1) -> p_bar
+           width = 1) -> p_bar)
 
 p_bar + coord_flip()
 
@@ -295,10 +290,9 @@ ToothGrowth %>%
   geom_errorbar(aes(ymin = Length - sd, ymax = Length + sd),
                 width = .2,
                 position = position_dodge(.9)) +
-  scale_fill_brewer(palette = "Paired") + 
-  theme_minimal()
+  scale_fill_brewer(palette = "Paired") 
 
-## Temas pré-definidos
+## Temas pré-definidos (Slide 84)
 
 (ggplot(df, aes(x = weight, fill = sex)) +
     geom_histogram(color = "black") +
@@ -321,7 +315,7 @@ p_hist + theme_dark()
 p_hist + theme_void()
 
 
-# Fatiamento
+# Fatiamento (slide 87)
 ## Usando a função facet_grid
 ### Fatiamento pelas categorias de uma variável
 p_hist + facet_grid(sex ~ .)
@@ -365,7 +359,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_wrap(~ class, ncol = 2)
 
-# Salvamento de gráficos
+# Salvamento de gráficos (slide 91)
 ggplot(mtcars, aes(mpg, wt)) +
   geom_point()
 
