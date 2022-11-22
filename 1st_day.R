@@ -234,9 +234,9 @@ Ames_Data %>% arrange(Gr_Liv_Area) # crescente
 
 Ames_Data %>% arrange(desc(Gr_Liv_Area)) # decrescente
 
-Ames_Data %>% arrange(Year_Built, Year_Remod_Add) # crescente com duas variáveis
+Ames_Data %>% arrange(Year_Built, Gr_Liv_Area) # crescente com duas variáveis
 
-Ames_Data %>% arrange(Year_Built, desc(Year_Remod_Add)) # crescente e decrescente
+Ames_Data %>% arrange(Year_Built, desc(Gr_Liv_Area)) # crescente e decrescente
 
 mtcars %>%
   group_by(cyl) %>% # Agrupa por cilindradas e organiza
@@ -328,11 +328,11 @@ Ames_Data %>% select_if(is.numeric) # seleciona se condição for satisfeita
 
 Ames_Data %>% select(contains("Area")) # seleciona a variável que contém um determinado termo
 
-Ames_Data %>% select(Gr_Liv_Area:Year_Remod_Add) # seleciona um intervalo de variáveis
+Ames_Data %>% select(Gr_Liv_Area:Lot_Area) # seleciona um intervalo de variáveis
 
 Ames_Data %>% select(1:3) # seleciona um intervalo de variáveis
 
-Ames_Data %>% select(!(Gr_Liv_Area:Year_Remod_Add)) # seleciona variáveis fora do intervalo
+Ames_Data %>% select(!(Gr_Liv_Area:Lot_Area )) # seleciona variáveis fora do intervalo
 
 iris %>% select(!ends_with("Width")) # não seleciona variáveis com um dado termo no final
 
@@ -399,7 +399,7 @@ mtcars_by_cyl %>% group_vars() # mostra as variáveis de agrupamento
 mtcars_by_cyl %>%
   summarise(
     n = n(),
-    disp = mean(disp, na.rm = TRUE)
+    mean_disp = mean(disp, na.rm = TRUE)
   ) # conta e tira a média de uma variável específica
 
 mtcars_by_cyl %>%
@@ -408,7 +408,7 @@ mtcars_by_cyl %>%
 
 mtcars_by_cyl %>%
   select(1:5) %>%
-  summarise(mean_dist = mean(disp), sd_dist = sd(disp)) # reuso correto de variáveis
+  summarise(mean_disp = mean(disp), sd_disp = sd(disp)) # reuso correto de variáveis
 
 mtcars_by_cyl %>%
   select(1:5) %>%
@@ -420,12 +420,13 @@ mtcars_by_cyl %>%
 mtcars_by_cyl %>% 
 summarise_at(vars(disp:qsec), mean, na.rm = TRUE) # média de variáveis espeficicadas numa faixa
 
-mtcars_by_cyl %>%
+Ames_Data %>%
+  group_by(Overall_Qual) %>%
   summarise_if(is.numeric, mean, na.rm = TRUE) # média de variáveis que atendem uma condição
 
 mtcars_by_cyl %>%
   select(1:5) %>%
-  summarise_all(list(mean, sd)) # aplicação de mais de uma função em todas as variáveis
+  summarise_all(list(mean, sd, median, length)) # aplicação de mais de uma função em todas as variáveis
 
 mtcars_by_cyl %>%
   select(1:5) %>%
@@ -443,6 +444,6 @@ write_csv2(Ames_Data, file = "Ames_Data2.txt") # separa os valores por ponto e v
 
 write_delim(Ames_Data, 
             file = "Ames_Data_delim.txt", 
-            delim = "|") # separa os valores por um delimitador especificado
+            delim = "/") # separa os valores por um delimitador especificado
 
 write_tsv(mtcars, "mtcars.tsv") # separa os valores por tabulação

@@ -57,8 +57,8 @@ d_s |>
   theme_classic()
 
 ### Resíduos versus x_i
-plot(savings$pop15, residuals(m), xlab = "Population under 15", ylab = "Residuals")
-plot(savings$pop75, residuals(m), xlab = "Population over 75", ylab = "Residuals")
+plot(savings$pop15, residuals(ms), xlab = "Population under 15", ylab = "Residuals")
+plot(savings$pop75, residuals(ms), xlab = "Population over 75", ylab = "Residuals")
 
 ### Resíduos absolutos vessus x_i
 lm(abs_res ~ fit, d_s) %>% 
@@ -73,28 +73,28 @@ par(mfrow = c(2, 2))
 
 # - caso 1: homogeneidade de variâncias
 for (i in 1:graficos) {
-  plot(1:50, rnorm(50), xlab = expression(hat(y)), ylab = "Resíduos", main = "caso 1")
+  plot(1:50, rnorm(50), xlab = expression(hat(y)), ylab = "Resíduos", main = "Homogeneidade")
   abline(h = 0)
 }
 
 # - caso 2: heterogeneidade forte
 for (i in 1:graficos) {
   plot(1:50, (1:50) * rnorm(50), 
-       xlab = expression(hat(y)), ylab = "|Resíduos|", main = "caso 2")
+       xlab = expression(hat(y)), ylab = "|Resíduos|", main = "Heterogeneidade Forte")
   abline(h = 0)
 }
 
 # - caso 3: heterogeneidade moderada
 for (i in 1:graficos) {
   plot(1:50, sqrt((1:50)) * rnorm(50), 
-       xlab = expression(hat(y)), ylab = "REsíduos", main = "caso 3")
+       xlab = expression(hat(y)), ylab = "REsíduos", main = "Heterogeneidade Moderada")
   abline(h = 0)
 }
 
 # - caso 4: não-linearidade
 for (i in 1:graficos) {
   plot(1:50, cos((1:50) * pi / 25) + rnorm(50), 
-       xlab = expression(hat(y)), ylab = "Resíduos", main = "caso 4")
+       xlab = expression(hat(y)), ylab = "Resíduos", main = "Não-Linearidade")
   abline(h = 0)
 }
 par(mfrow = c(1, 1))
@@ -111,9 +111,9 @@ gala # Diversidade de espécies nas ilhas Galápagos
 
 (mg <- lm(Species ~ . - Endemics, gala))
 
-tibble(fit = fitted(mg), 
+(tibble(fit = fitted(mg), 
        res = residuals(mg), 
-       abs_res = residuals(mg) %>% abs()) -> d_g
+       abs_res = residuals(mg) %>% abs()) -> d_g)
 
 par(mfrow = c(1, 1))
 plot(res ~ fit, data = d_g, 
@@ -214,9 +214,11 @@ for (i in 1:15) {
 }
 
 #### Se o n for pequeno
+
 for (i in 1:15) {
   print(shapiro.test(rnorm(5))$p.value) # 5 valores da normal
-} 
+}
+
 
 for (i in 1:15) {
   print(shapiro.test(rcauchy(5))$p.value) # 5 valores da cauchy
@@ -273,7 +275,6 @@ lines(residuals(mal), ylab = "Residuos")
 
 
 #### Plotando resíduos sucessivos
-x11()
 plot(residuals(mal)[-153],
      residuals(mal)[-1],
      xlab = expression(hat(epsilon)[i]),
